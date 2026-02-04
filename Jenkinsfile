@@ -41,7 +41,7 @@ pipeline {
 
                     if not exist "%REPORT_DIR%" mkdir "%REPORT_DIR%"
                     set "RAW_REPORT=%REPORT_DIR%\\unittest_report.txt"
-                    "%PYTHON%" -m unittest test.mip_2d_pack -v > "%RAW_REPORT%" 2>&1
+                    "%PYTHON%" -m unittest discover -s test -p "mip_2d_pack.py" -v > "%RAW_REPORT%" 2>&1
                     set "TEST_EXIT=%ERRORLEVEL%"
 
                     if not "%TEST_EXIT%"=="0" (
