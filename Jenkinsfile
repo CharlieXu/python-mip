@@ -32,9 +32,13 @@ pipeline {
                     if (!(Test-Path $python)) {
                         throw "Python executable not found at $python"
                     }
+                    if (!(Test-Path "tests")) {
+                        throw "Tests directory not found at $(Join-Path (Get-Location) 'tests')"
+                    }
 
                     New-Item -ItemType Directory -Path $env:REPORT_DIR -Force | Out-Null
                     $output = & $python -m unittest discover -s tests -p "test*.py" -v 2>&1
+                    $exitCode = $LASTEXITCODE
                     $escaped = $output | ForEach-Object { $_ -replace "&", "&amp;" -replace "<", "&lt;" -replace ">", "&gt;" }
                     $html = @"
 <!doctype html>
@@ -56,7 +60,8 @@ pipeline {
                     $reportPath = Join-Path $env:REPORT_DIR $env:REPORT_FILE
                     $html | Set-Content -Path $reportPath -Encoding UTF8
 
-                    if ($LASTEXITCODE -ne 0) {
+                    if ($exitCode -ne 0) {
+                        Write-Host ($output -join "`n")
                         throw "Unit tests failed"
                     }
                 '''
