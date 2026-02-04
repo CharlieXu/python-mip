@@ -37,7 +37,7 @@ pipeline {
                     }
 
                     New-Item -ItemType Directory -Path $env:REPORT_DIR -Force | Out-Null
-                    $output = & $python -m unittest discover -s test -p "mip_test.py" -v 2>&1
+                    $output = & $python -m unittest discover -s test -p "test*.py" -v 2>&1
                     $exitCode = $LASTEXITCODE
                     $escaped = $output | ForEach-Object { $_ -replace "&", "&amp;" -replace "<", "&lt;" -replace ">", "&gt;" }
                     $html = @"
