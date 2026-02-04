@@ -32,12 +32,12 @@ pipeline {
                     if (!(Test-Path $python)) {
                         throw "Python executable not found at $python"
                     }
-                    if (!(Test-Path "test")) {
-                        throw "Tests directory not found at $(Join-Path (Get-Location) 'test')"
+                    if (!(Test-Path "test\\two_dim_pack_test.py")) {
+                        throw "Test file not found at $(Join-Path (Get-Location) 'test\\two_dim_pack_test.py')"
                     }
 
                     New-Item -ItemType Directory -Path $env:REPORT_DIR -Force | Out-Null
-                    $output = & $python -m unittest discover -s test -p "test*.py" -v 2>&1
+                    $output = & $python -m unittest test.two_dim_pack_test -v 2>&1
                     $exitCode = $LASTEXITCODE
                     $escaped = $output | ForEach-Object { $_ -replace "&", "&amp;" -replace "<", "&lt;" -replace ">", "&gt;" }
                     $html = @"
