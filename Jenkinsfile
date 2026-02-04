@@ -77,9 +77,8 @@ pipeline {
                         git config user.name "Jenkins"
                         git config user.email "jenkins@local"
                         git tag ${tagName}
-                        for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "Add-Type -AssemblyName System.Web; [System.Web.HttpUtility]::UrlEncode($env:GIT_USERNAME)"`) do set "ENC_USER=%%A"
-                        for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "Add-Type -AssemblyName System.Web; [System.Web.HttpUtility]::UrlEncode($env:GIT_PASSWORD)"`) do set "ENC_PASS=%%A"
-                        set "REPO_WITH_CREDS=%GIT_REPO_URL:https://=https://%ENC_USER%:%ENC_PASS%@%"
+                        set "ENC_PASS=%GIT_PASSWORD:@=%40%"
+                        set "REPO_WITH_CREDS=%GIT_REPO_URL:https://=https://%GIT_USERNAME%:%ENC_PASS%@%"
                         git push %REPO_WITH_CREDS% ${tagName}
                     """
                 }
