@@ -26,44 +26,30 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                powershell '''
-                    $ErrorActionPreference = "Stop"
-                    $python = Join-Path $env:VENV_PATH "Scripts\\python.exe"
-                    if (!(Test-Path $python)) {
-                        throw "Python executable not found at $python"
-                    }
-                    if (!(Test-Path "test\\two_dim_pack_test.py")) {
-                        throw "Test file not found at $(Join-Path (Get-Location) 'test\\two_dim_pack_test.py')"
-                    }
+                bat '''
+                    @echo off
+                    setlocal enabledelayedexpansion
+                    set "PYTHON=%VENV_PATH%\\Scripts\\python.exe"
+                    if not exist "%PYTHON%" (
+                        echo Python executable not found at %PYTHON%
+                        exit /b 1
+                    )
+                    if not exist "test\\two_dim_pack_test.py" (
+                        echo Test file not found at %CD%\\test\\two_dim_pack_test.py
+                        exit /b 1
+                    )
 
-                    New-Item -ItemType Directory -Path $env:REPORT_DIR -Force | Out-Null
-                    $output = & $python -m unittest test.two_dim_pack_test -v 2>&1
-                    $exitCode = $LASTEXITCODE
-                    $escaped = $output | ForEach-Object { $_ -replace "&", "&amp;" -replace "<", "&lt;" -replace ">", "&gt;" }
-                    $html = @"
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>PyUnit Test Report</title>
-    <style>
-      body { font-family: Arial, sans-serif; margin: 16px; }
-      pre { background: #f5f5f5; padding: 12px; border-radius: 6px; }
-    </style>
-  </head>
-  <body>
-    <h1>PyUnit Test Report</h1>
-    <pre>$($escaped -join "`n")</pre>
-  </body>
-</html>
-"@
-                    $reportPath = Join-Path $env:REPORT_DIR $env:REPORT_FILE
-                    $html | Set-Content -Path $reportPath -Encoding UTF8
+                    if not exist "%REPORT_DIR%" mkdir "%REPORT_DIR%"
+                    set "RAW_REPORT=%REPORT_DIR%\\unittest_report.txt"
+                    "%PYTHON%" -m unittest test.two_dim_pack_test -v > "%RAW_REPORT%" 2>&1
+                    set "TEST_EXIT=%ERRORLEVEL%"
 
-                    if ($exitCode -ne 0) {
-                        Write-Host ($output -join "`n")
-                        throw "Unit tests failed"
-                    }
+                    "%PYTHON%" -c "import html,io,sys,pathlib; p=pathlib.Path(r'%RAW_REPORT%'); t=p.read_text(errors='ignore'); h=f'''<!doctype html><html lang=\\"en\\"><head><meta charset=\\"utf-8\\" /><title>PyUnit Test Report</title><style>body{{font-family:Arial,sans-serif;margin:16px}}pre{{background:#f5f5f5;padding:12px;border-radius:6px}}</style></head><body><h1>PyUnit Test Report</h1><pre>{html.escape(t)}</pre></body></html>'''; pathlib.Path(r'%REPORT_DIR%\\%REPORT_FILE%').write_text(h, encoding='utf-8')"
+
+                    if not "%TEST_EXIT%"=="0" (
+                        type "%RAW_REPORT%"
+                        exit /b %TEST_EXIT%
+                    )
                 '''
             }
         }
