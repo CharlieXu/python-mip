@@ -44,8 +44,6 @@ pipeline {
                     "%PYTHON%" -m unittest test.two_dim_pack_test -v > "%RAW_REPORT%" 2>&1
                     set "TEST_EXIT=%ERRORLEVEL%"
 
-                    "%PYTHON%" -c "import html,io,sys,pathlib; p=pathlib.Path(r'%RAW_REPORT%'); t=p.read_text(errors='ignore'); h=f'''<!doctype html><html lang=\\"en\\"><head><meta charset=\\"utf-8\\" /><title>PyUnit Test Report</title><style>body{{font-family:Arial,sans-serif;margin:16px}}pre{{background:#f5f5f5;padding:12px;border-radius:6px}}</style></head><body><h1>PyUnit Test Report</h1><pre>{html.escape(t)}</pre></body></html>'''; pathlib.Path(r'%REPORT_DIR%\\%REPORT_FILE%').write_text(h, encoding='utf-8')"
-
                     if not "%TEST_EXIT%"=="0" (
                         type "%RAW_REPORT%"
                         exit /b %TEST_EXIT%
