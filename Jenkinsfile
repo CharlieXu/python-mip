@@ -34,14 +34,14 @@ pipeline {
                         echo Python executable not found at %PYTHON%
                         exit /b 1
                     )
-                    if not exist "test\\two_dim_pack_test.py" (
-                        echo Test file not found at %CD%\\test\\two_dim_pack_test.py
+                    if not exist "test\\mip_2d_pack.py" (
+                        echo Test file not found at %CD%\\test\\mip_2d_pack.py
                         exit /b 1
                     )
 
                     if not exist "%REPORT_DIR%" mkdir "%REPORT_DIR%"
                     set "RAW_REPORT=%REPORT_DIR%\\unittest_report.txt"
-                    "%PYTHON%" -m unittest test.two_dim_pack_test -v > "%RAW_REPORT%" 2>&1
+                    "%PYTHON%" -m unittest test.mip_2d_pack -v > "%RAW_REPORT%" 2>&1
                     set "TEST_EXIT=%ERRORLEVEL%"
 
                     if not "%TEST_EXIT%"=="0" (
