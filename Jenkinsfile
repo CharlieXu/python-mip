@@ -77,7 +77,7 @@ pipeline {
                         git config user.name "Jenkins"
                         git config user.email "jenkins@local"
                         git tag ${tagName}
-                        set "REPO_WITH_PAT=%GIT_REPO_URL:https://=https://%GITHUB_PAT%@%"
+                        set "REPO_WITH_PAT=https://%GITHUB_PAT%@%GIT_REPO_URL:~8%"
                         git push %REPO_WITH_PAT% ${tagName}
                     """
                 }
