@@ -14,13 +14,15 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: "*/${env.BRANCH_NAME}"]],
-                    userRemoteConfigs: [[
-                        url: "${env.GIT_REPO_URL}".replace('https://', "https://${env.GIT_USERNAME}:${env.GIT_PASSWORD}@")
-                    ]]
-                ])
+                withEnv(["GIT_SSH_COMMAND=ssh -i ${env.GIT_SSH_KEY_PATH} -o StrictHostKeyChecking=no"]) {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: "*/${env.BRANCH_NAME}"]],
+                        userRemoteConfigs: [[
+                            url: "${env.GIT_REPO_URL}"
+                        ]]
+                    ])
+                }
             }
         }
 
@@ -77,9 +79,8 @@ pipeline {
                         git config user.name "Jenkins"
                         git config user.email "jenkins@local"
                         git tag ${tagName}
-                        set "ENC_PASS=%GIT_PASSWORD:@=%40%"
-                        set "REPO_WITH_CREDS=%GIT_REPO_URL:https://=https://%GIT_USERNAME%:%ENC_PASS%@%"
-                        git push %REPO_WITH_CREDS% ${tagName}
+                        set "GIT_SSH_COMMAND=ssh -i %GIT_SSH_KEY_PATH% -o StrictHostKeyChecking=no"
+                        git push %GIT_REPO_URL% ${tagName}
                     """
                 }
             }
