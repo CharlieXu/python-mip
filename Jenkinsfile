@@ -18,7 +18,7 @@ pipeline {
                     $class: 'GitSCM',
                     branches: [[name: "*/${env.BRANCH_NAME}"]],
                     userRemoteConfigs: [[
-                        url: "${env.GIT_REPO_URL}".replace('https://', "https://%GITHUB_PAT%@")
+                        url: "${env.GIT_REPO_URL}".replace('https://', "https://${env.GITHUB_PAT}@")
                     ]]
                 ])
             }
